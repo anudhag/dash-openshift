@@ -134,20 +134,12 @@ We need a few more steps and our app is ready to be deployed to OpenShift.
 First we'll need to add a 
 [WSGI server](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) for 
 running the app on OpenShift. We'll use [gunicron](http://gunicorn.org/) here.  
-We'll add the gunicorn configurations in a config.py file. Now we need to set 
-the environment variable `APP_CONFIG` to point ot this config file, for that 
-we'll need to add an [environment](https://docs.openshift.org/latest/dev_guide/builds/build_strategies.html#environment-files) 
-file within the `.s2i` folder.
-
-Install gunicorn and add an `environment` file within `.s2i` folder pointing to
- the gunicorn config file.
 
 ```bash
 $ pip install gunicorn
-$ mkdir .s2i
 ```
 
-Add a `config.py` file with the following content:
+We'll add the gunicorn configurations in a config.py file. Add a `config.py` file with the following content:  
 
 ```python
 import os
@@ -157,19 +149,29 @@ threads = int(os.environ.get('GUNICORN_THREADS', '1'))
 
 forwarded_allow_ips = '*'
 secure_scheme_headers = { 'X-Forwarded-Proto': 'https' }
-
 ```
-Add the following content to an `environment` file in `.s2i` folder
+
+Now we need to set the environment variable `APP_CONFIG` to point ot this config file, for that 
+we'll need to add an [environment](https://docs.openshift.org/latest/dev_guide/builds/build_strategies.html#environment-files) 
+file within a `.s2i` directory.
+
+```bash
+$ mkdir .s2i
+$ cd .s2i
+```
+
+Add the following content to an `environment` file in `.s2i` directory.
 
 ```
 APP_CONFIG=config.py
 ```
 
-Create a `requirements.txt` file with a list of packages to be installed.  
+Create a `requirements.txt` file in the `dash_openshift` directory with a list of packages to be installed.  
 More info about requirements file can be found 
 [here](http://pip-python3.readthedocs.io/en/latest/user_guide.html#requirements-files)
 
 ```bash
+$ cd ..
 $ pip freeze > requirements.txt
 ```
 
